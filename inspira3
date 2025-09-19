@@ -1,0 +1,68 @@
+# Install dependencies (if running locally)
+# pip install streamlit
+
+import streamlit as st
+
+st.set_page_config(page_title="Tax Saving Adviser Bot")
+
+# -------------------- UI --------------------
+st.title("🧾 Tax Saving Adviser Bot")
+st.write("Get personalized suggestions to save tax legally in India (FY 2024-25)")
+
+# -------------------- User Inputs --------------------
+income = st.number_input("Enter your annual income (₹)", min_value=0, step=1000)
+rent = st.number_input("Monthly rent paid (₹)", min_value=0, step=500)
+investments_80C = st.number_input("Investments under Section 80C (PPF, ELSS, LIC, etc.)", min_value=0, step=1000)
+insurance_premium = st.number_input("Health insurance premium (₹)", min_value=0, step=1000)
+
+# Optional
+loan_interest = st.number_input("Home loan interest paid (₹)", min_value=0, step=1000)
+
+# -------------------- Constants --------------------
+STANDARD_DEDUCTION = 50000
+MAX_80C = 150000
+MAX_80D = 25000
+
+# -------------------- Tax Calculation --------------------
+if st.button("Calculate Tax Saving Tips"):
+    st.subheader("📊 Tax Summary & Suggestions")
+
+    # 1. Section 80C calculation
+    eligible_80C = min(investments_80C, MAX_80C)
+    st.write(f"✅ 80C Deduction Claimed: ₹{eligible_80C}")
+
+    # 2. Section 80D (Health Insurance)
+    eligible_80D = min(insurance_premium, MAX_80D)
+    st.write(f"✅ 80D Deduction Claimed: ₹{eligible_80D}")
+
+    # 3. HRA deduction estimate (basic formula)
+    hra_deduction = min(0.5 * income, rent * 12)  # Simplified
+    st.write(f"✅ Estimated HRA Deduction: ₹{hra_deduction:.0f}")
+
+    # 4. Home Loan Interest (Section 24b)
+    eligible_home_loan = min(loan_interest, 200000)
+    st.write(f"✅ Home Loan Interest Deduction (24b): ₹{eligible_home_loan}")
+
+    # -------------------- Total Deduction --------------------
+    total_deductions = STANDARD_DEDUCTION + eligible_80C + eligible_80D + hra_deduction + eligible_home_loan
+    st.write(f"🔹 **Standard Deduction**: ₹{STANDARD_DEDUCTION}")
+    st.write(f"🔹 **Total Deductions**: ₹{total_deductions:.0f}")
+
+    # -------------------- Taxable Income --------------------
+    taxable_income = max(0, income - total_deductions)
+    st.success(f"🧮 Estimated Taxable Income After Deductions: ₹{taxable_income:.0f}")
+
+    # -------------------- Suggestions --------------------
+    st.subheader("💡 Tax Saving Suggestions")
+    if investments_80C < MAX_80C:
+        st.write(f"- You can still invest ₹{MAX_80C - investments_80C} under 80C to maximize your deduction.")
+    if insurance_premium < MAX_80D:
+        st.write(f"- Consider increasing health insurance to get full 80D benefit.")
+    if loan_interest < 200000:
+        st.write(f"- If applicable, home loan interest up to ₹2L is deductible.")
+    if rent > 0 and hra_deduction < rent * 12:
+        st.write("- You may be eligible for higher HRA deduction with rent receipts.")
+
+    st.caption("Disclaimer: This is a demo tool for educational use only. Always consult a certified tax professional for official filing.")
+
+ 
